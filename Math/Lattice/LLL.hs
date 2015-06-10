@@ -1,4 +1,4 @@
-module Math.LLL where
+module Math.Lattice.LLL where
 
 import Data.Ratio
 
