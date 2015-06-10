@@ -17,11 +17,14 @@ evaluate (P as) x = _evalP as x
 coefficients :: P a -> [a]
 coefficients (P as) = as
 
-instance Num a => Num (P a) where
-    P as + P bs = P (_addP as bs)
-    P as - P bs = P (_subP as bs)
-    P as * P bs = P (_hybridMultP as bs)
+instance (Eq a, Num a) => Num (P a) where
+    P as + P bs = P (_simplify $ _addP as bs)
+    P as - P bs = P (_simplify $ _subP as bs)
+    P as * P bs = P (_simplify $ _hybridMultP as bs)
     negate (P as) = P (_negateP as)
     abs p = p
     signum _ = 1
-    fromInteger c = P [fromInteger c]
+    fromInteger c = P $ _simplify [fromInteger c]
+
+instance (Eq a, Num a) => Eq (P a) where
+    p == q = coefficients (p - q) == []
