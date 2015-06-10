@@ -34,12 +34,15 @@ gramSchmidtStep (b:bs) v =
         v' = v .- mu .* b
     in gramSchmidtStep bs v'
 
-lll :: RealFrac a => [[a]] -> [[a]]
+isZero :: (Eq a, Num a) => [a] -> Bool
+isZero = all (== 0)
+
+lll :: (RealFrac a) => [[a]] -> [[a]]
 lll = reverse . go []
     where
     delta :: Fractional a => a
     delta = 3/4
-    go :: RealFrac a => [([a], [a])] -> [[a]] -> [[a]]
+    go :: (RealFrac a) => [([a], [a])] -> [[a]] -> [[a]]
     go basis [] = map fst basis
     go [] (v:vs) = go [(v, v)] vs
     go basis@((b,b'):bs) (v:vs) =
@@ -47,9 +50,12 @@ lll = reverse . go []
             v'' = gramSchmidtStep (map snd basis) v'
             mu = dot b' v' / dot b' b'
         in
-        if dot v'' v'' >= (delta - mu^2) * dot b' b'
-        then go ((v',v''):basis) vs
-        else go bs (v':b:vs)
+        if isZero v'
+        then go basis vs
+        else
+            if dot v'' v'' >= (delta - mu^2) * dot b' b'
+            then go ((v',v''):basis) vs
+            else go bs (v':b:vs)
 
 lllReduceStep :: RealFrac a => [([a], [a])] -> [a] -> [a]
 lllReduceStep [] v = v

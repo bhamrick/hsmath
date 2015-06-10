@@ -14,6 +14,9 @@ degree (P as) = length as
 evaluate :: Num a => P a -> a -> a
 evaluate (P as) x = _evalP as x
 
+constPoly :: (Eq a, Num a) => a -> P a
+constPoly c = if c == 0 then P [] else P [c]
+
 coefficients :: P a -> [a]
 coefficients (P as) = as
 
@@ -28,3 +31,10 @@ instance (Eq a, Num a) => Num (P a) where
 
 instance (Eq a, Num a) => Eq (P a) where
     p == q = coefficients (p - q) == []
+
+instance Functor P where
+    fmap f (P as) = P (fmap f as)
+
+infixl 7 .*
+(.*) :: (Eq a, Num a) => a -> P a -> P a
+c .* P as = if c == 0 then P [] else P (map (*c) as)
