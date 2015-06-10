@@ -14,6 +14,9 @@ degree (P as) = length as
 evaluate :: Num a => P a -> a -> a
 evaluate (P as) x = _evalP as x
 
+coefficients :: P a -> [a]
+coefficients (P as) = as
+
 instance Num a => Num (P a) where
     P as + P bs = P (_addP as bs)
     P as - P bs = P (_subP as bs)
