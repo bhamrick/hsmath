@@ -35,6 +35,12 @@ instance (Eq a, Num a) => Eq (P a) where
 instance Functor P where
     fmap f (P as) = P (fmap f as)
 
+instance Foldable P where
+    foldMap f (P as) = foldMap f as
+
+instance Traversable P where
+    traverse f (P as) = P <$> traverse f as
+
 infixl 7 .*
 (.*) :: (Eq a, Num a) => a -> P a -> P a
 c .* P as = if c == 0 then P [] else P (map (*c) as)
