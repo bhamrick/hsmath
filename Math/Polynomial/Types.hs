@@ -25,6 +25,10 @@ constPoly c = if c == 0 then P [] else P [c]
 coefficients :: P a -> [a]
 coefficients (P as) = as
 
+derivative :: Num a => P a -> P a
+derivative (P []) = P []
+derivative (P (_:as)) = P (zipWith (*) (iterate (+1) 1) as)
+
 instance (Eq a, Num a) => Num (P a) where
     P as + P bs = P (_simplify $ _addP as bs)
     P as - P bs = P (_simplify $ _subP as bs)
