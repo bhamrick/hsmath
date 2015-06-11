@@ -1,9 +1,14 @@
 module Math.Polynomial.Types where
 
 import Math.Polynomial.Operations
+import Test.QuickCheck
 
 newtype P a = P [a]
     deriving Show
+
+instance Arbitrary a => Arbitrary (P a) where
+    arbitrary = P <$> arbitrary
+    shrink (P as) = P <$> shrink as
 
 polyVar :: Num a => P a
 polyVar = P [0, 1]
