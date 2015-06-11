@@ -32,7 +32,7 @@ millerRabin k n = do
 -- randomPrime n returns a random prime with n bits
 randomPrime :: MonadRandom m => Int -> m Integer
 randomPrime n = do
-    candidate <- fmap (\x -> 2*x + 1) (getRandomR (2^(n-1), 2^n - 1))
+    candidate <- fmap (\x -> 2*x + 1) (getRandomR (2^(n-2), 2^(n-1) - 1))
     isPrime <- millerRabin k candidate
     if isPrime
         then return candidate
