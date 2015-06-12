@@ -51,5 +51,9 @@ bezout a b =
     then (0, 1)
     else let (x', y') = bezout b r in (y', x' - q * y')
 
+eGcd :: (Eq a, Euclidean a) => a -> a -> a
+eGcd a 0 = a
+eGcd a b = eGcd (eMod a b) a
+
 modForm :: (Eq a, Euclidean a) => Ratio a -> a -> Maybe a
 modForm (a :% b) n = fmap (\x -> (a * x) `eMod` n) (invMod b n)

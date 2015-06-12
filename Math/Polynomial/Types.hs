@@ -22,12 +22,19 @@ evaluate (P as) x = _evalP as x
 constPoly :: (Eq a, Num a) => a -> P a
 constPoly c = if c == 0 then P [] else P [c]
 
+substitute :: (Eq a, Num a) => P a -> P a -> P a
+substitute p q = evaluate (fmap constPoly p) q
+
 coefficients :: P a -> [a]
 coefficients (P as) = as
 
 derivative :: Num a => P a -> P a
 derivative (P []) = P []
 derivative (P (_:as)) = P (zipWith (*) (iterate (+1) 1) as)
+
+monicMultiple :: Fractional a => P a -> P a
+monicMultiple (P []) = P []
+monicMultiple (P as) = let c = last as in P (map (/ c) as)
 
 instance (Eq a, Num a) => Num (P a) where
     P as + P bs = P (_simplify $ _addP as bs)
