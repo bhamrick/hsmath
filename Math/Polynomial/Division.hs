@@ -1,4 +1,9 @@
-module Math.Polynomial.Division (divModPoly) where
+module Math.Polynomial.Division
+    ( divModPoly
+    , monicDivMod
+    , monicDiv
+    , monicMod
+    ) where
 
 import Math.Modular
 import Math.Polynomial.Types
@@ -12,6 +17,7 @@ instance (Eq a, Fractional a) => Euclidean (P a) where
 -- Note that here the coefficients are in most-significant first order
 _divModPoly :: Fractional a => [a] -> [a] -> ([a], [a])
 _divModPoly [] _ = ([], [])
+_divModPoly _ [] = error "Division by zero polynomial"
 _divModPoly p@(a:as) d@(b:bs) =
     if length p < length d
     then ([], p)
@@ -37,16 +43,22 @@ propEvaluate p x =
 
 -- |If the divisor is not monic, then this acts as division by the polynomial
 -- where the leading coefficient has been replaced by 1.
-monicDivModPoly :: Num a => P a -> P a -> (P a, P a)
-monicDivModPoly (P as) (P bs) = let (q', r') = _monicDivModPoly (reverse as) (drop 1 $ reverse bs) in (P (reverse q'), P (reverse r'))
+monicDivMod :: Num a => P a -> P a -> (P a, P a)
+monicDivMod (P as) (P bs) = let (q', r') = _monicDivMod (reverse as) (drop 1 $ reverse bs) in (P (reverse q'), P (reverse r'))
 
 -- Here the coefficients are in most-significant first order and the divisor
 -- has an implicit 1 at the beginning
-_monicDivModPoly :: Num a => [a] -> [a] -> ([a], [a])
-_monicDivModPoly [] _ = ([], [])
-_monicDivModPoly p@(a:as) d@(bs) =
-    if length p < length d
+_monicDivMod :: Num a => [a] -> [a] -> ([a], [a])
+_monicDivMod [] _ = ([], [])
+_monicDivMod p@(a:as) d@(bs) =
+    if length p <= length d
     then ([], p)
     else let p' = _subPrefix as (map (* a) bs)
-             (q', r) = _monicDivModPoly p' d
+             (q', r) = _monicDivMod p' d
          in (a:q', r)
+
+monicDiv :: Num a => P a -> P a -> P a
+monicDiv p q = fst (monicDivMod p q)
+
+monicMod :: Num a => P a -> P a -> P a
+monicMod p q = snd (monicDivMod p q)

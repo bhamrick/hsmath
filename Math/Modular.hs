@@ -24,7 +24,7 @@ instance Euclidean Integer where
 modPow :: Euclidean a => a -> Integer -> a -> a
 modPow _ 0 _ = 1
 modPow a e n =
-    let x = modPow a (e `eDiv` 2) n
+    let x = modPow a (e `div` 2) n
     in
     if even e
     then (x * x) `eMod` n
@@ -57,3 +57,6 @@ eGcd a b = eGcd (eMod a b) a
 
 modForm :: (Eq a, Euclidean a) => Ratio a -> a -> Maybe a
 modForm (a :% b) n = fmap (\x -> (a * x) `eMod` n) (invMod b n)
+
+-- TODO: Investigate creating Num + Fractional instances at runtime via reflection
+-- package.
