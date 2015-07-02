@@ -3,11 +3,12 @@ module Math.Polynomial.Modular where
 -- Helper functions for dealing with polynomials modulo monic polynomials.
 -- If you're working over a field, you can just use the functions in Math.Modular,
 -- as Math.Polynomial.Division exposes a Euclidean instance.
-
 import Math.Modular
 import Math.Polynomial.Types
 import Math.Polynomial.Division
 import Math.Polynomial.Operations (_simplify)
+
+import Debug.Trace
 
 monicModPow :: (Eq a, Num a) => P a -> Integer -> P a -> P a
 monicModPow _ 0 _ = 1
@@ -56,7 +57,7 @@ _modularDivModPoly p@(a:as) d@(b:bs) n =
     else case invMod b n of
         Nothing -> error "Uninvertible element"
         Just b' ->
-            let c0 = a * b'
+            let c0 = (a * b') `mod` n
                 p' = map (`mod` n) (_subPrefix as (map (* c0) bs))
                 (q', r) = _modularDivModPoly p' d n
             in (c0:q', r)
@@ -71,3 +72,7 @@ modularDivPoly p q n = fst (modularDivModPoly p q n)
 
 modularModPoly :: P Integer -> P Integer -> Integer -> P Integer
 modularModPoly p q n = snd (modularDivModPoly p q n)
+
+modularEvaluate :: P Integer -> Integer -> Integer -> Integer
+modularEvaluate (P []) n x = 0
+modularEvaluate (P (a:as)) n x = (a + x * modularEvaluate (P as) n x) `mod` n

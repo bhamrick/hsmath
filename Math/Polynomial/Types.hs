@@ -1,5 +1,6 @@
 module Math.Polynomial.Types where
 
+import GHC.Real
 import Math.Polynomial.Operations
 import Test.QuickCheck
 
@@ -35,6 +36,16 @@ derivative (P (_:as)) = P (zipWith (*) (iterate (+1) 1) as)
 monicMultiple :: Fractional a => P a -> P a
 monicMultiple (P []) = P []
 monicMultiple (P as) = let c = last as in P (map (/ c) as)
+
+integerMultiple :: Integral a => P (Ratio a) -> P a
+integerMultiple (P []) = P []
+integerMultiple (P as) = P (map (\(r :% s) -> (multFactor `div` s) * r) as)
+    where
+    findMultFactor [] acc = acc
+    findMultFactor ((r :% s) : rest) acc =
+        let acc' = lcm s acc
+        in acc' `seq` findMultFactor rest acc'
+    multFactor = findMultFactor as 1
 
 instance (Eq a, Num a) => Num (P a) where
     P as + P bs = P (_simplify $ _addP as bs)

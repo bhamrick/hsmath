@@ -53,7 +53,7 @@ bezout a b =
 
 eGcd :: (Eq a, Euclidean a) => a -> a -> a
 eGcd a 0 = a
-eGcd a b = eGcd (eMod a b) a
+eGcd a b = eGcd b (eMod a b)
 
 modForm :: (Eq a, Euclidean a) => Ratio a -> a -> Maybe a
 modForm (a :% b) n = fmap (\x -> (a * x) `eMod` n) (invMod b n)

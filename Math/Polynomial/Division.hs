@@ -3,13 +3,17 @@ module Math.Polynomial.Division
     , monicDivMod
     , monicDiv
     , monicMod
+    , squareFreePoly
     ) where
 
 import Math.Modular
 import Math.Polynomial.Types
+import Math.Polynomial.Operations
 
-divModPoly :: Fractional a => P a -> P a -> (P a, P a)
-divModPoly (P as) (P bs) = let (q', r') = _divModPoly (reverse as) (reverse bs) in (P (reverse q'), P (reverse r'))
+divModPoly :: (Eq a, Fractional a) => P a -> P a -> (P a, P a)
+divModPoly (P as) (P bs) =
+    let (q', r') = _divModPoly (reverse as) (reverse bs)
+    in (P (reverse . dropWhile (== 0) $ q'), P (reverse . dropWhile (== 0) $ r'))
 
 instance (Eq a, Fractional a) => Euclidean (P a) where
     eDivMod = divModPoly
@@ -62,3 +66,6 @@ monicDiv p q = fst (monicDivMod p q)
 
 monicMod :: Num a => P a -> P a -> P a
 monicMod p q = snd (monicDivMod p q)
+
+squareFreePoly :: (Eq a, Fractional a) => P a -> P a
+squareFreePoly f = let g = eGcd f (derivative f) in eDiv f g
