@@ -14,15 +14,30 @@ import Math.Polynomial.ModularRoots
 import Math.Primes
 import System.Random
 
--- TODO: Figure out what a good bound B is
 smallModularRoots :: P Integer -> Integer -> [Integer]
-smallModularRoots p n = undefined
+smallModularRoots p n =
+    let eps = 1 / (3 * fromIntegral (degree p))
+        b = round (0.5 * exp ((1/(fromIntegral (degree p)) - eps) * log (fromInteger n)))
+        h = ceiling (1 / (fromIntegral (degree p) * eps))
+        candidates = smallModularRoots' p n b h
+    in filter (\x -> modularEvaluate p n x == 0) candidates
 
 smallModularRoots' :: P Integer -> Integer -> Integer -> Int -> [Integer]
 smallModularRoots' p n b h =
     let r = reducedPolynomial p n b h
         candidates = smallRoots (integerMultiple . squareFreePoly $ r) b
-    in filter (\x -> modularEvaluate p n x == 0) candidates
+    in filter (\x -> gcd (modularEvaluate p n x) n > 1) candidates
+
+-- Given a semiprime N and the high bits of the larger factor of N, attempts to find the
+-- remainder of the factor.
+-- Since we're using a degree 1 polynomial, we need h >= max(1/4eps, 7/2).
+-- Using h = 4, we have eps = 1/16, so we will find the factor when the size
+-- of the unknown part is at most 1/2 * N^(1/4 - 1/16) = 1/2 * N^(3/16).
+-- For simplicity, we'll have the bound on the remainder as an argument.
+partialFactor :: Integer -> Integer -> Integer -> Maybe Integer
+partialFactor n partialP b =
+    let results = smallModularRoots' (P [partialP, 1]) n b 4
+    in fmap ((+) partialP) . listToMaybe $ results
 
 reducedPolynomial :: P Integer -> Integer -> Integer -> Int -> P Rational
 reducedPolynomial p n b h = evaluate (fmap constPoly (P (head reducedLatticeBasis))) (1 % b .* polyVar)
